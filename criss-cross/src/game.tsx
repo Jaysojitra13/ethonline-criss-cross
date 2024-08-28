@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type Cell = string;
 type Grid = Cell[][];
@@ -18,20 +18,90 @@ const CrissCross: React.FC = () => {
   const [initialFilled, setInitialFilled] = useState<boolean>(false);
   const [placementsNeeded, setPlacementsNeeded] = useState<number>(0);
   const [rollCount, setRollCount] = useState<number>(0);
+  const [scores, setScores] = useState({
+    rows: Array(5).fill(0),
+    cols: Array(5).fill(0),
+    diagonals: Array(2).fill(0),
+    total: 0,
+  });
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
-  const resetGame = () => {
-    setGrid(Array.from({ length: 5 }, () => Array(5).fill("")));
-    setDice1(0);
-    setDice2(0);
-    setDiceCounts({});
-    setLastFilled(null);
-    setInitialFilled(false);
-    setPlacementsNeeded(0);
-    setRollCount(0);
+  useEffect(() => {
+    if (grid.flat().every((cell) => cell !== "")) {
+      calculateScore();
+      setGameOver(true);
+    }
+  }, [grid]);
+
+  const calculateScore = () => {
+    const newScores = {
+      rows: Array(5).fill(0),
+      cols: Array(5).fill(0),
+      diagonals: Array(2).fill(0),
+      total: 0,
+    };
+
+    grid.forEach((row, rowIndex) => {
+      newScores.rows[rowIndex] = calculateLineScore(row);
+    });
+
+    for (let colIndex = 0; colIndex < 5; colIndex++) {
+      const column = grid.map((row) => row[colIndex]);
+      newScores.cols[colIndex] = calculateLineScore(column);
+    }
+
+    const diagonal1 = grid.map((row, index) => row[index]);
+    const diagonal2 = grid.map((row, index) => row[4 - index]);
+    newScores.diagonals[0] = calculateLineScore(diagonal1);
+    newScores.diagonals[1] = calculateLineScore(diagonal2);
+
+    // Calculate total score
+    newScores.total =
+      newScores.rows.reduce((a, b) => a + b, 0) +
+      newScores.cols.reduce((a, b) => a + b, 0) +
+      newScores.diagonals.reduce((a, b) => a + b, 0);
+
+    setScores(newScores);
+  };
+
+  const calculateLineScore = (line: string[]): number => {
+    let score = 0;
+    let consecutive = 1;
+    let hasConsecutive = false;
+    for (let i = 1; i < line.length; i++) {
+      if (line[i] === line[i - 1] && line[i] !== "") {
+        consecutive++;
+        hasConsecutive = true;
+      } else {
+        score += getScoreForConsecutive(consecutive);
+        consecutive = 1;
+      }
+    }
+    score += getScoreForConsecutive(consecutive);
+    if (!hasConsecutive) {
+      score = -5;
+    }
+
+    return score;
+  };
+
+  const getScoreForConsecutive = (count: number): number => {
+    switch (count) {
+      case 2:
+        return 2;
+      case 3:
+        return 3;
+      case 4:
+        return 8;
+      case 5:
+        return 10;
+      default:
+        return 0;
+    }
   };
 
   const rollDice = (): void => {
-    if (rollCount === 12) return; // Skip roll on 12th if no adjacent cells are available
+    if (rollCount >= 12 || gameOver) return;
     const newDice1 = Math.floor(Math.random() * 6) + 1;
     const newDice2 = Math.floor(Math.random() * 6) + 1;
     setDice1(newDice1);
@@ -39,7 +109,7 @@ const CrissCross: React.FC = () => {
     const newCounts = { ...diceCounts };
     newCounts[newDice1] = (newCounts[newDice1] || 0) + 1;
     newCounts[newDice2] = (newCounts[newDice2] || 0) + 1;
-    setDiceCounts(newCounts); // Update counts for each dice number
+    setDiceCounts(newCounts);
     setPlacementsNeeded(2);
     setRollCount(rollCount + 1);
   };
@@ -60,21 +130,22 @@ const CrissCross: React.FC = () => {
       setLastFilled({ row, col });
       setPlacementsNeeded(placementsNeeded - 1);
       const newCounts = { ...diceCounts };
-      newCounts[diceNumber] -= 1; // Decrement the count for this dice number
+      newCounts[diceNumber] -= 1;
       setDiceCounts(newCounts);
     }
   };
 
   const isAdjacent = (row: number, col: number): boolean => {
-    if (!lastFilled || placementsNeeded === 2) return true; // Allow placement anywhere for the first dice of the roll
+    if (!lastFilled || placementsNeeded === 2) return true;
     const { row: lastRow, col: lastCol } = lastFilled;
     return (
       Math.abs(lastRow - row) + Math.abs(lastCol - col) === 1 &&
-      (lastRow === row || lastCol === col) // Ensure they are aligned horizontally or vertically
+      (lastRow === row || lastCol === col)
     );
   };
 
   const handleFirstCellSelection = (number: number): void => {
+    if (grid[0][0] !== "") return;
     setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       newGrid[0][0] = number.toString();
@@ -84,6 +155,23 @@ const CrissCross: React.FC = () => {
     setInitialFilled(true);
   };
 
+  const resetGame = () => {
+    setGrid(Array.from({ length: 5 }, () => Array(5).fill("")));
+    setDice1(0);
+    setDice2(0);
+    setDiceCounts({});
+    setLastFilled(null);
+    setInitialFilled(false);
+    setPlacementsNeeded(0);
+    setRollCount(0);
+    setScores({
+      rows: Array(5).fill(0),
+      cols: Array(5).fill(0),
+      diagonals: Array(2).fill(0),
+      total: 0,
+    });
+    setGameOver(false);
+  };
   return (
     <div>
       <h1>Dice Grid Game</h1>
@@ -121,10 +209,50 @@ const CrissCross: React.FC = () => {
                   {cell}
                 </td>
               ))}
+              <td style={{ width: "40px", textAlign: "center" }}>
+                {scores.rows[rowIndex]}
+              </td>
             </tr>
           ))}
+          <tr>
+            {Array.from({ length: 5 }).map((_, colIndex) => (
+              <td
+                key={`col-score-${colIndex}`}
+                style={{ width: "40px", textAlign: "center" }}
+              >
+                {scores.cols[colIndex]}
+              </td>
+            ))}
+            <td></td>
+          </tr>
         </tbody>
       </table>
+
+      <table style={{ margin: "20px auto", borderCollapse: "collapse" }}>
+        <tbody>
+          <tr>
+            <td style={{ border: "1px solid black", padding: "10px" }}>
+              Diagonal 1: {scores.diagonals[0]}
+            </td>
+            <td style={{ border: "1px solid black", padding: "10px" }}>
+              Diagonal 2: {scores.diagonals[1]}
+            </td>
+          </tr>
+          <tr>
+            <td
+              colSpan={2}
+              style={{
+                border: "1px solid black",
+                padding: "10px",
+                textAlign: "center",
+              }}
+            >
+              Total Score: {scores.total}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       {!initialFilled && (
         <div>
           <p>Select a number for the first cell:</p>
@@ -141,23 +269,12 @@ const CrissCross: React.FC = () => {
       <button
         style={{ display: "block", margin: "20px auto" }}
         onClick={rollDice}
-        disabled={initialFilled && placementsNeeded !== 0}
+        disabled={rollCount === 12}
       >
         Roll Dice
       </button>
-      {/* <button
-        style={{ display: "block", margin: "20px auto", marginTop: "10px" }}
-        onClick={resetGame}
-      >
-        Reset Game
-      </button> */}
-      {initialFilled && dice1 && dice2 && placementsNeeded > 0 && (
-        <div>
-          <p>
-            Dice Rolls: {dice1} and {dice2} - Place both in adjacent cells
-          </p>
-        </div>
-      )}
+      <p>Dice 1: {dice1}</p>
+      <p>Dice 2: {dice2}</p>
     </div>
   );
 };

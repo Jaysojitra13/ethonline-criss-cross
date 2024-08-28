@@ -55,7 +55,6 @@ const CrissCross: React.FC = () => {
     newScores.diagonals[0] = calculateLineScore(diagonal1);
     newScores.diagonals[1] = calculateLineScore(diagonal2);
 
-    // Calculate total score
     newScores.total =
       newScores.rows.reduce((a, b) => a + b, 0) +
       newScores.cols.reduce((a, b) => a + b, 0) +
@@ -155,23 +154,23 @@ const CrissCross: React.FC = () => {
     setInitialFilled(true);
   };
 
-  const resetGame = () => {
-    setGrid(Array.from({ length: 5 }, () => Array(5).fill("")));
-    setDice1(0);
-    setDice2(0);
-    setDiceCounts({});
-    setLastFilled(null);
-    setInitialFilled(false);
-    setPlacementsNeeded(0);
-    setRollCount(0);
-    setScores({
-      rows: Array(5).fill(0),
-      cols: Array(5).fill(0),
-      diagonals: Array(2).fill(0),
-      total: 0,
-    });
-    setGameOver(false);
-  };
+  //   const resetGame = () => {
+  //     setGrid(Array.from({ length: 5 }, () => Array(5).fill("")));
+  //     setDice1(0);
+  //     setDice2(0);
+  //     setDiceCounts({});
+  //     setLastFilled(null);
+  //     setInitialFilled(false);
+  //     setPlacementsNeeded(0);
+  //     setRollCount(0);
+  //     setScores({
+  //       rows: Array(5).fill(0),
+  //       cols: Array(5).fill(0),
+  //       diagonals: Array(2).fill(0),
+  //       total: 0,
+  //     });
+  //     setGameOver(false);
+  //   };
   return (
     <div>
       <h1>Dice Grid Game</h1>

@@ -38,6 +38,7 @@ export const move = async (
                     dice: value,
                     row: row,
                     col: col,
+                    id: id
                 }),
                 id,
             };
@@ -55,7 +56,7 @@ export const move = async (
                     dice: value,
                     row: row,
                     col: col,
-
+                    id: id
                 }),
                 id,
             };

@@ -68,7 +68,7 @@ npm install
 npm run start
 ```
 
-Here's how you can add these future plans to the `README.md`:
+Your game will be ready : [frontend](http://localhost:5173)
 
 ### Future Plans
 

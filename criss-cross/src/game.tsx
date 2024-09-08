@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { initGame, move } from "./api/stackr.api";
 
 type Cell = string;
 type Grid = Cell[][];
@@ -25,6 +26,13 @@ const CrissCross: React.FC = () => {
     total: 0,
   });
   const [gameOver, setGameOver] = useState<boolean>(false);
+
+  useEffect(() => {
+    const initializeGame = async () => {
+      await initGame();
+    };
+    initializeGame();
+  }, []);
 
   useEffect(() => {
     if (grid.flat().every((cell) => cell !== "")) {
@@ -113,7 +121,11 @@ const CrissCross: React.FC = () => {
     setRollCount(rollCount + 1);
   };
 
-  const fillCell = (row: number, col: number, diceNumber: number): void => {
+  const fillCell = async (
+    row: number,
+    col: number,
+    diceNumber: number
+  ): Promise<void> => {
     if (
       placementsNeeded <= 0 ||
       grid[row][col] !== "" ||
@@ -121,6 +133,7 @@ const CrissCross: React.FC = () => {
     )
       return;
     if (diceNumber && isAdjacent(row, col)) {
+      await move(diceNumber, row, col);
       setGrid((prevGrid) => {
         const newGrid = [...prevGrid];
         newGrid[row][col] = diceNumber.toString();
@@ -143,8 +156,9 @@ const CrissCross: React.FC = () => {
     );
   };
 
-  const handleFirstCellSelection = (number: number): void => {
+  const handleFirstCellSelection = async (number: number): Promise<void> => {
     if (grid[0][0] !== "") return;
+    await move(number, 0, 0);
     setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       newGrid[0][0] = number.toString();

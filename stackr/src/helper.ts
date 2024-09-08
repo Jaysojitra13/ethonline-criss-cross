@@ -20,7 +20,8 @@ export const move = async (
     value: number,
     row: number,
     col: number,
-    wallet: HDNodeWallet
+    wallet: HDNodeWallet,
+    id: string
 ) => {
     console.log('current move', currentMove, 'total move', totalMoves)
     if (currentMove <= totalMoves) {

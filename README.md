@@ -67,3 +67,24 @@ cp .env.sample .env  # Fill in the required values in the .env file
 npm install
 npm run start
 ```
+
+Here's how you can add these future plans to the `README.md`:
+
+### Future Plans
+
+- **View All Games and Manage Progress**:
+
+  - Implement a feature to display all games a user has participated in, allowing them to easily resume incomplete games or review completed ones. This will provide players with a comprehensive view of their gaming history and ensure they never lose track of their progress.
+
+- **1v1 Competitive Play**:
+
+  - Introduce a 1v1 game mode where players can challenge each other in a head-to-head match. This feature will add a competitive edge to CrissCross, allowing players to directly compete with friends or random opponents in real-time, making the game more engaging and interactive.
+
+- **Group Play in a Room**:
+
+  - Develop a "Play in Room" feature, where multiple players can join a virtual room and play together. This mode will support group play, enabling friends, family, or community members to engage in a shared gaming experience, fostering a sense of camaraderie and competition among larger groups.
+
+- **Daily Leaderboard and Rankings**:
+  - Implement a daily leaderboard to showcase top players based on their performance in the game. This will encourage players to strive for high scores each day, fostering healthy competition and providing motivation for regular gameplay. Players will be able to see how they rank against others and work their way up to the top of the leaderboard.
+
+These future enhancements will further enrich the CrissCross experience, making it more versatile and appealing to a broader audience.

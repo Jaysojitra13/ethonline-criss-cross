@@ -12,6 +12,7 @@ const CrissCross: React.FC = () => {
   const [grid, setGrid] = useState<Grid>(
     Array.from({ length: 5 }, () => Array(5).fill(""))
   );
+  const [moveID, setMoveID] = useState(1);
   const [dice1, setDice1] = useState<number>(0);
   const [dice2, setDice2] = useState<number>(0);
   const [gameID, setGameId] = useState<string>("");
@@ -140,7 +141,8 @@ const CrissCross: React.FC = () => {
     )
       return;
     if (diceNumber && isAdjacent(row, col)) {
-      await move(diceNumber, row, col, gameID);
+      await move(diceNumber, row, col, gameID, moveID);
+      setMoveID(moveID + 1);
       setGrid((prevGrid) => {
         const newGrid = [...prevGrid];
         newGrid[row][col] = diceNumber.toString();
@@ -165,7 +167,8 @@ const CrissCross: React.FC = () => {
 
   const handleFirstCellSelection = async (number: number): Promise<void> => {
     if (grid[0][0] !== "") return;
-    await move(number, 0, 0, gameID);
+    await move(number, 0, 0, gameID, moveID);
+    setMoveID(moveID + 1);
     setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       newGrid[0][0] = number.toString();

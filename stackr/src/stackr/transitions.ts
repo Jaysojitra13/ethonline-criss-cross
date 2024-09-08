@@ -3,33 +3,24 @@ import { CrissCrossState } from "./state";
 import { machine } from "./machine";
 
 const move: STF<CrissCrossState> = {
-  handler: ({ inputs: { moves }, state, emit }) => {
+  handler: ({ inputs: { moves, id }, state, emit }) => {
 
     if (JSON.parse(moves).move > 1) {
-      const prevgame = JSON.parse(machine.state).game;
-      const prevMove = JSON.parse(machine.state).move;
-      const currentMove = JSON.parse(moves).move;
-      // console.log("prev state", prevMove);
 
-      /*todo :
-      1. The state which it is updating must be non - zero 
-      2. If even it can update any cell 
-      3. if odd fetch prev row and col & check it updating the correct state
-      4. also check move id is increasing linearly
-      */
-      //cond : 1
-      // console.log("current moves", JSON.parse(moves))
+      const prevgame = JSON.parse(JSON.parse(machine.state)[id]).game;
+      const prevMove = JSON.parse(JSON.parse(machine.state)[id]).move;
+      const currentMove = JSON.parse(moves).move;
       const updatingRow = JSON.parse(moves).row;
       const updatingCol = JSON.parse(moves).col;
 
-      const state = prevgame[updatingRow][updatingCol];
-      if (state) {
+      const oldState = prevgame[updatingRow][updatingCol];
+      if (oldState) {
         throw new Error('cannot update already filled state')
       }
       //condition 3 
       if (JSON.parse(moves).move % 2 == 1) {
-        const prevRow = JSON.parse(machine.state).row;
-        const prevCol = JSON.parse(machine.state).col;
+        const prevRow = JSON.parse(JSON.parse(machine.state)[id]).row;
+        const prevCol = JSON.parse(JSON.parse(machine.state)[id]).col;
         const currentRow = JSON.parse(moves).row;
         const currentCol = JSON.parse(moves).col;
 
@@ -40,17 +31,33 @@ const move: STF<CrissCrossState> = {
           throw new Error('Place number to adajacent cells only!');
         }
       }
-      // condition 4
-      // const prevMove = JSON.parse(machine.state).move;
-      // const currentMove = JSON.parse(moves).move;
       if (currentMove != prevMove + 1) {
         throw new Error('cannot jump states')
       }
+      const prevState = machine.state;
+      const preStateJSON = JSON.parse(prevState);
+      const newState = JSON.stringify({ ...preStateJSON, [id]: moves })
+      state = newState
+      // state = moves;
+      // // const prevState = JSON.parse(machine.state);
+      // // console.log(prevState)
+      // console.log("new state", moves)
+      // emit({ name: "After Move", value: state });
+      // return state;
+    } else {
+      const prevState = machine.state;
+      if (prevState == '') {
+        state = JSON.stringify({ [id]: moves });
+      } else {
+        const preStateJSON = JSON.parse(prevState);
+        const newState = JSON.stringify({ ...preStateJSON, [id]: moves })
+        state = newState
+      }
+      console.log("new state", state)
+      emit({ name: "After Move", value: state });
     }
-    console.log("new state", moves)
-    state = moves;
-    emit({ name: "After Move", value: state });
     return state;
+
   },
 };
 

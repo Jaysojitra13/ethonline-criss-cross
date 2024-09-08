@@ -14,10 +14,10 @@ export const initGame = async (): Promise<string> => {
     }
 };
 
-export const move = async (value: number, row: number, col: number, id: string): Promise<void> => {
+export const move = async (value: number, row: number, col: number, id: string, moveNumber: number): Promise<void> => {
     try {
         console.log(id)
-        const response = await axios.post(`${BASE_URL}/move`, { value, row, col, id });
+        const response = await axios.post(`${BASE_URL}/move`, { value, row, col, id, moveNumber });
         console.log('Move logged:', response.data);
     } catch (error) {
         console.error('Error logging move:', error);

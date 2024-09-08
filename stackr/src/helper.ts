@@ -8,12 +8,10 @@ import { Playground } from "@stackr/sdk/plugins";
 import { machine } from "./stackr/machine.ts";
 
 const totalMoves = 24;
-let currentMove: number;
 
 export const InitGame = () => {
     console.log("init game called");
     Playground.init(mru);
-    currentMove = 1;
 };
 
 export const move = async (
@@ -21,12 +19,12 @@ export const move = async (
     row: number,
     col: number,
     wallet: HDNodeWallet,
-    id: string
+    id: string,
+    moveNumber: number
 ) => {
-    console.log('current move', currentMove, 'total move', totalMoves)
-    if (currentMove <= totalMoves) {
-        if (currentMove == 1) {
-            console.log('move called')
+    if (moveNumber <= totalMoves) {
+        if (moveNumber == 1) {
+            console.log("move called");
             let inputs = {
                 moves: JSON.stringify({
                     game: [
@@ -36,35 +34,36 @@ export const move = async (
                         [0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0],
                     ],
-                    move: currentMove,
+                    move: moveNumber,
                     dice: value,
                     row: row,
                     col: col,
                 }),
+                id,
             };
 
             await sendTransaction(wallet, inputs);
-            currentMove += 1;
         } else {
-            const newState = JSON.parse(machine.state).game;
+            const oldState = JSON.parse(machine.state)[id];
+            const newState = JSON.parse(oldState).game
             newState[row][col] = value;
             let inputs = {
                 moves: JSON.stringify({
+
                     game: newState,
-                    move: currentMove,
+                    move: moveNumber,
                     dice: value,
                     row: row,
                     col: col,
+
                 }),
+                id,
             };
             try {
-
                 await sendTransaction(wallet, inputs);
-                currentMove += 1;
             } catch (err) {
-                console.log(err)
+                console.log(err);
             }
-
         }
     }
 };
@@ -85,5 +84,4 @@ async function sendTransaction(
 
     const { logs, errors } = await ack.waitFor(ActionConfirmationStatus.C1);
     console.log({ logs, errors });
-
 }

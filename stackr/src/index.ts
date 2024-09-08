@@ -26,10 +26,10 @@ app.post("/init-game", (req, res) => {
 
 // Log a move
 app.post("/move", async (req, res) => {
-  const { value, row, col, id } = req.body;
+  const { value, row, col, id, moveNumber } = req.body;
 
   try {
-    await move(value, row, col, wallet, id);
+    await move(value, row, col, wallet, id, moveNumber);
     res.status(200).send(`Move logged successfully: Value = ${value}, Row = ${row}, Col = ${col}`);
   } catch (error) {
     console.error("Error logging move:", error);

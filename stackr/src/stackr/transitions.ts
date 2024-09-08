@@ -42,7 +42,7 @@ const move: STF<CrissCrossState> = {
       // // const prevState = JSON.parse(machine.state);
       // // console.log(prevState)
       // console.log("new state", moves)
-      // emit({ name: "After Move", value: state });
+      emit({ name: "After Move", value: state });
       // return state;
     } else {
       const prevState = machine.state;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { initGame, move } from "./api/stackr.api";
+import { getRandomNumbers, initGame, move } from "./api/stackr.api";
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from "lucide-react";
 
 type Cell = string;
@@ -38,9 +38,10 @@ const CrissCross: React.FC = () => {
 
   const initializeGame = async () => {
     try {
-      const id = await initGame();
-      console.log("Setting game ID:", id);
-      setGameId(id);
+      const { gameid } = await initGame();
+      console.log("Setting game ID:", gameid);
+
+      setGameId(gameid);
       resetGame();
     } catch (error) {
       console.error("Failed to initialize game:", error);
@@ -121,15 +122,18 @@ const CrissCross: React.FC = () => {
     }
   };
 
-  const rollDice = (): void => {
+  const rollDice = async (): Promise<void> => {
     if (rollCount >= 12 || gameOver) return;
-    const newDice1 = Math.floor(Math.random() * 6) + 1;
-    const newDice2 = Math.floor(Math.random() * 6) + 1;
-    setDice1(newDice1);
-    setDice2(newDice2);
+    const num = await fetchRandomNumbers();
+    // const newDice1 = randomNos[rollCount * 2];
+    // const newDice2 = randomNos[rollCount * 2 + 1];
+    setDice1(num?.firstNumber as number);
+    setDice2(num?.secondNumber as number);
     const newCounts = { ...diceCounts };
-    newCounts[newDice1] = (newCounts[newDice1] || 0) + 1;
-    newCounts[newDice2] = (newCounts[newDice2] || 0) + 1;
+    newCounts[num?.firstNumber as number] =
+      (newCounts[num?.firstNumber as number] || 0) + 1;
+    newCounts[num?.secondNumber as number] =
+      (newCounts[num?.secondNumber as number] || 0) + 1;
     setDiceCounts(newCounts);
     setPlacementsNeeded(2);
     setRollCount(rollCount + 1);
@@ -200,6 +204,18 @@ const CrissCross: React.FC = () => {
         return <Dice6 />;
       default:
         return null;
+    }
+  };
+
+  const fetchRandomNumbers = async () => {
+    try {
+      const { firstNumber, secondNumber } = await getRandomNumbers(
+        gameID,
+        moveID
+      );
+      return { firstNumber, secondNumber };
+    } catch (error) {
+      console.error("Failed to fetch random numbers:", error);
     }
   };
 

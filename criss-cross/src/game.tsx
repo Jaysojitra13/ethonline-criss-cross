@@ -306,7 +306,6 @@ const CrissCross: React.FC = () => {
           {gameOver && (
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-4">Game Over!</h2>
-              <p className="text-xl">Final Score: {score}</p>
             </div>
           )}
         </div>
